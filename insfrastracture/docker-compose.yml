@@ -1,0 +1,103 @@
+
+
+services:
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+    networks:
+      - elev8-network
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+    container_name: auth-service
+    expose:
+      - "5001"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    networks:
+      - elev8-network
+
+  product-service:
+    build:
+      context: ./services/product-service
+    container_name: product-service
+    expose:
+      - "5002"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    networks:
+      - elev8-network
+
+  order-service:
+    build:
+      context: ./services/order-service
+    container_name: order-service
+    expose:
+      - "5003"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    networks:
+      - elev8-network
+
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: elev8
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - elev8-network
+
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - elev8-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@elev8.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - elev8-network
+
+volumes:
+  postgres-data:
+
+networks:
+  elev8-network:
+    driver: bridge

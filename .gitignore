@@ -1,0 +1,6 @@
+insfrastracture/services/auth-service/node_modules/
+insfrastracture/services/product-service/node_modules/
+insfrastracture/services/order-service/node_modules/
+insfrastracture/services/auth-service/src/.env
+insfrastracture/services/order-service/src/.env
+insfrastracture/services/product-service/src/.env
