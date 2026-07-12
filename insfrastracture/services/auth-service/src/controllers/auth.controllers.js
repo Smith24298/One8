@@ -1,8 +1,5 @@
 export function health(req, res) {
 
-    res.status(200).json({
-        status: "OK",
-        service: "Auth Service"
-    });
+    res.status(HTTP_STATUS.OK).json(new ApiResponse(HTTP_STATUS.OK, 'Auth Service is healthy'));
 
 }
