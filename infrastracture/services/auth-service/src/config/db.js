@@ -11,4 +11,11 @@ const pool = new Pool({
   database: env.DB_NAME,
 });
 
+pool.query('select 1', (err, res) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+  } else {
+    console.log('Database connection successful');
+  }});
+
 export default pool;
