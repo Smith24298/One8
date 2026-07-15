@@ -15,22 +15,22 @@ export const createUser = async (user,client = pool) => {
     }
 }
 
-export const getUserByEmail = async (email) => {
+export const getUserByEmail = async (email, client = pool) => {
     const query = 'SELECT * FROM users WHERE email = $1';
     const values = [email];
     try {
-        const result = await pool.query(query, values);
+        const result = await client.query(query, values);
         return result.rows[0];
     } catch (err) {
         throw new Error('Error fetching user by email: ' + err.message);
     }
 }
 
-export const getUserById = async (id) => {
+export const getUserById = async (id, client = pool) => {
     const query = 'SELECT id, full_name, email, role, email_verified, created_at FROM users WHERE id = $1';
     const values = [id];
     try {
-        const result = await pool.query(query, values);
+        const result = await client.query(query, values);
         return result.rows[0];
     } catch (err) {
         throw new Error('Error fetching user by id: ' + err.message);
@@ -38,8 +38,9 @@ export const getUserById = async (id) => {
 }
 
 export const saveRefreshToken = async (userId, token, expiresAt, client = pool) => {
+    const tokenHash = hashToken(token);
     const query = 'INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) RETURNING *';
-    const values = [userId, token, expiresAt];
+    const values = [userId, tokenHash, expiresAt];
     try {
         const result = await client.query(query, values);
         return result.rows[0];
@@ -49,8 +50,9 @@ export const saveRefreshToken = async (userId, token, expiresAt, client = pool) 
 }
 
 export const findRefreshToken = async (token) => {
+    const tokenHash = hashToken(token);
     const query = 'SELECT * FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()';
-    const values = [token];
+    const values = [tokenHash];
     try {
         const result = await pool.query(query, values);
         return result.rows[0];
@@ -60,8 +62,9 @@ export const findRefreshToken = async (token) => {
 }
 
 export const deleteRefreshToken = async (token, client = pool) => {
+    const tokenHash = hashToken(token);
     const query = 'DELETE FROM refresh_tokens WHERE token = $1';
-    const values = [token];
+    const values = [tokenHash];
     try {
         const result = await client.query(query, values);
         return result.rows[0];
@@ -139,12 +142,12 @@ export const saveEmailVerificationToken = async (userId, token, expiresAt, clien
     }
 }
 
-export const getEmailVerificationToken = async (token) => {
+export const getEmailVerificationToken = async (token, client = pool) => {
     const tokenHash = hashToken(token);
     const query = `SELECT evt.*, u.email FROM email_verification_tokens evt JOIN users u ON u.id = evt.user_id WHERE evt.token_hash = $1 AND evt.expires_at > NOW() AND evt.used = FALSE`;
     const values = [tokenHash];
     try {
-        const result = await pool.query(query, values);
+        const result = await client.query(query, values);
         return result.rows[0] || null;
     } catch (err) {
         throw new Error('Error fetching email verification token: ' + err.message);
