@@ -4,3 +4,4 @@ infrastracture/services/order-service/node_modules/
 infrastracture/services/auth-service/.env
 infrastracture/services/order-service/.env
 infrastracture/services/product-service/.env
+infrastracture/services/auth-service/logs/
